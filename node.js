@@ -44,7 +44,7 @@ module.exports = function launch(dumpFile, cleanupTimer) {
 					.pipe(out);
 			});
 		})
-		.then(() => opn(fileUrl('./dist/index.html'), { wait: false }))
+		.then(() => opn(fileUrl(path.join(__dirname, 'dist', 'index.html')), { wait: false }))
 		.then(() => cleanupTimer && setTimeout(cleanup, cleanupTimer))
 		.catch(err => {
 			cleanup();
