@@ -4,7 +4,10 @@
 .eslintrc
 .git*
 .nyc_output
+.postcssrc.js
 .travis.yml
+/build
+/config
 /coverage
 /docs
 gulpfile.js
