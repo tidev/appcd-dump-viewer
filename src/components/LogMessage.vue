@@ -12,18 +12,22 @@ const convert = new Convert({
 	bg: '#fff'
 });
 
+function escapeEntities(str) {
+	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export default {
 	computed: {
 		message() {
 			let { args, ns, ts } = this.msg;
-			ns = ns ? `[${ns}] ` : '';
+			ns = ns ? `[${escapeEntities(ns)}] ` : '';
 			ts = ts ? `<span class="pull-right ts">${moment(new Date(ts)).format('h:mm:ss a')}</span>` : '';
 			args = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, '    ') : arg);
 
 			const msg = args.length > 1 ? sprintf.apply(null, args) : args[0];
 			return msg
 				.split(/\r?\n/)
-				.map(line => convert.toHtml(`<pre>${ts}${ns}${line}</pre>`))
+				.map(line => convert.toHtml(`<pre>${ts}${ns}${escapeEntities(line)}</pre>`))
 				.join('\n');
 		}
 	},
