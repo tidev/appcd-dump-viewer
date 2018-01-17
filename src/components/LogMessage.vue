@@ -3,40 +3,28 @@
 </template>
 
 <script>
-import Convert from 'ansi-to-html';
-import moment from 'moment';
+import AnsiUp from 'ansi_up';
 import sprintf from 'sprintf';
 
-const convert = new Convert({
-	fg: '#000',
-	bg: '#fff'
-});
-
-function escapeEntities(str) {
-	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+const ansiup = new AnsiUp();
 
 export default {
 	computed: {
 		message() {
-			let { args, ns, ts } = this.msg;
-			ns = ns ? `[${escapeEntities(ns)}] ` : '';
-			ts = ts ? `<span class="pull-right ts">${moment(new Date(ts)).format('h:mm:ss a')}</span>` : '';
-			args = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, '    ') : arg);
+			let { args, message } = this.msg;
 
-			const msg = args.length > 1 ? sprintf.apply(null, args) : args[0];
-			return msg
+			if (Array.isArray(args)) {
+				args = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, '    ') : arg);
+				message = args.length > 1 ? sprintf.apply(null, args) : args[0];
+			}
+
+			return message
+				.trim()
 				.split(/\r?\n/)
-				.map(line => convert.toHtml(`<pre>${ts}${ns}${escapeEntities(line)}</pre>`))
+				.map(line => `${ansiup.ansi_to_html(line)}`)
 				.join('\n');
 		}
 	},
 	props: [ 'msg' ]
 };
 </script>
-
-<style>
-.ts {
-	color: #666;
-}
-</style>

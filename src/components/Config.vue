@@ -1,22 +1,12 @@
 <template>
-	<fieldset>
-		<legend>Configuration</legend>
-
-		<table>
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Value</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr v-for="item in conf">
-					<td>{{ item.name }}</td>
-					<td>{{ item.value }}</td>
-				</tr>
-			</tbody>
-		</table>
-	</fieldset>
+	<table>
+		<tbody>
+			<tr v-for="item in conf">
+				<th>{{ item.name }}</th>
+				<td>{{ item.value }}</td>
+			</tr>
+		</tbody>
+	</table>
 </template>
 
 <script>

@@ -1,31 +1,85 @@
 <template>
 	<div id="app">
-		<header>
-			<span id="dump-file" v-if="dumpFile">{{ dumpFile }}</span>
-			<h1>Appc Daemon Dump Viewer</h1>
-		</header>
-		<div v-if="dump">
-			<Status :dump="dump" />
-			<Config :dump="dump" />
-			<Health :dump="dump" />
-			<Log :dump="dump" />
-		</div>
-		<div class="message" v-else>
-			<span v-if="loading">
-				Loading...
-			</span>
-			<span v-else>
-				Please drop your dump file here
-			</span>
-		</div>
+		<v-app>
+			<header>
+				<span id="dump-file" v-if="dumpFile">{{ dumpFile }}</span>
+				<h1>Appc Daemon Dump Viewer</h1>
+			</header>
+			<v-content id="container" v-if="dump">
+				<Sidebar class="grey darken-3" id="sidebar" :dump="dump" />
+				<v-content id="content">
+					<v-tabs>
+						<v-tabs-bar class="grey darken-4" dark>
+							<v-tabs-item :href="'#process'" ripple>
+								Process
+							</v-tabs-item>
+							<v-tabs-item :href="'#config'" ripple>
+								Config
+							</v-tabs-item>
+							<v-tabs-item :href="'#health'" ripple>
+								Health
+							</v-tabs-item>
+							<v-tabs-item :href="'#filesystem'" ripple>
+								Filesystem
+							</v-tabs-item>
+							<v-tabs-item :href="'#subprocesses'" ripple>
+								Subprocesses
+							</v-tabs-item>
+							<v-tabs-item :href="'#plugins'" ripple>
+								Plugins
+							</v-tabs-item>
+							<v-tabs-item :href="'#log'" ripple>
+								Log
+							</v-tabs-item>
+							<v-tabs-slider color="blue darken-1"></v-tabs-slider>
+						</v-tabs-bar>
+						<v-tabs-items>
+							<v-tabs-content class="pa-2" :id="'process'">
+								<Process :dump="dump" />
+							</v-tabs-content>
+							<v-tabs-content class="pa-2" :id="'config'">
+								<Config :dump="dump" />
+							</v-tabs-content>
+							<v-tabs-content class="pa-2" :id="'health'">
+								<Health :dump="dump" />
+							</v-tabs-content>
+							<v-tabs-content class="pa-2" :id="'filesystem'">
+								<Filesystem :dump="dump" />
+							</v-tabs-content>
+							<v-tabs-content class="pa-2" :id="'subprocesses'">
+								<Subprocesses :dump="dump" />
+							</v-tabs-content>
+							<v-tabs-content class="pa-2" :id="'plugins'">
+								<Plugins :dump="dump" />
+							</v-tabs-content>
+							<v-tabs-content :id="'log'">
+								<Log :dump="dump" />
+							</v-tabs-content>
+						</v-tabs-items>
+					</v-tabs>
+				</v-content>
+			</v-content>
+			<v-container id="dropzone" v-else fluid fill-height>
+				<span v-if="loading">
+					Loading...
+				</span>
+				<span v-else>
+					Please drop your dump file here
+				</span>
+			</v-container>
+		</v-app>
 	</div>
 </template>
 
 <script>
 import Config from './components/Config';
+import Filesystem from './components/Filesystem';
 import Health from './components/Health';
 import Log from './components/Log';
-import Status from './components/Status';
+import Plugins from './components/Plugins';
+import Process from './components/Process';
+import Sidebar from './components/Sidebar';
+import Subprocesses from './components/Subprocesses';
 
 export default {
 	beforeCreate() {
@@ -68,9 +122,13 @@ export default {
 	},
 	components: {
 		Config,
+		Filesystem,
 		Health,
 		Log,
-		Status
+		Plugins,
+		Process,
+		Sidebar,
+		Subprocesses
 	},
 	created() {
     	const url = new URL(window.location);
@@ -106,17 +164,25 @@ export default {
 
 <style>
 #app {
+	display: flex;
 	height: 100%;
+	width: 100%;
 }
 
-#app > header {
+.application {
+	flex-grow: 1;
+}
+
+.application-wrap {
+	flex: 0 0 auto;
+}
+
+#app header {
 	border-bottom: 1px solid #cbcbcb;
-	box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 	height: 49px;
-	margin-bottom: 20px;
 }
 
-#app > header > h1 {
+#app header > h1 {
 	color: #505c66;
 	font-size: 18px;
 	font-weight: 300;
@@ -131,10 +197,32 @@ export default {
 	padding: 0 25px;
 }
 
-.message {
-	align-items: center;
+#sidebar {
+	color: #fff;
+	overflow-y: auto;
+	width: 300px;
+}
+
+#container {
+	flex: 1 1 auto;
+}
+
+#container > .content {
 	display: flex;
-	height: calc(100% - 70px);
+}
+
+#dropzone {
+	box-shadow: inset 0 8px 24px rgba(0,0,0,0.1);
 	justify-content: center;
+}
+
+.tabs {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.tabs__items {
+	overflow-y: auto !important;
 }
 </style>
