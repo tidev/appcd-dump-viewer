@@ -19,7 +19,7 @@ export default {
 </script>
 
 <style>
-.tree-node > li {
-	padding-left: 10px;
+.tree-node {
+	margin-left: 18px;
 }
 </style>
