@@ -1,31 +1,97 @@
 <template>
 	<div id="app">
-		<header>
-			<span id="dump-file" v-if="dumpFile">{{ dumpFile }}</span>
-			<h1>Appc Daemon Dump Viewer</h1>
-		</header>
-		<div v-if="dump">
-			<Status :dump="dump" />
-			<Config :dump="dump" />
-			<Health :dump="dump" />
-			<Log :dump="dump" />
-		</div>
-		<div class="message" v-else>
-			<span v-if="loading">
-				Loading...
-			</span>
-			<span v-else>
-				Please drop your dump file here
-			</span>
-		</div>
+		<v-app>
+			<header>
+				<span id="dump-file" v-if="dumpFile">{{ dumpFile }}</span>
+				<h1>Appc Daemon Dump Viewer</h1>
+			</header>
+			<v-content id="container" v-if="dump">
+				<Sidebar id="sidebar" :dump="dump" />
+				<v-tabs id="content">
+					<v-tabs-bar class="grey darken-4" dark>
+						<v-tabs-item :href="'#process'" ripple>
+							Process
+						</v-tabs-item>
+						<v-tabs-item :href="'#config'" ripple>
+							Config
+						</v-tabs-item>
+						<v-tabs-item :href="'#health'" ripple>
+							Health
+						</v-tabs-item>
+						<v-tabs-item :href="'#filesystem'" ripple>
+							Filesystem
+						</v-tabs-item>
+						<v-tabs-item :href="'#subprocesses'" ripple>
+							Subprocesses
+						</v-tabs-item>
+						<v-tabs-item :href="'#plugins'" ripple>
+							Plugins
+						</v-tabs-item>
+						<v-tabs-item :href="'#log'" ripple>
+							Log
+						</v-tabs-item>
+						<v-tabs-slider color="blue darken-1"></v-tabs-slider>
+					</v-tabs-bar>
+					<v-tabs-items>
+						<v-tabs-content class="pa-2" :id="'process'">
+							<div class="tab-container">
+								<Process :dump="dump" />
+							</div>
+						</v-tabs-content>
+						<v-tabs-content class="pa-2" :id="'config'">
+							<div class="tab-container">
+								<Config :dump="dump" />
+							</div>
+						</v-tabs-content>
+						<v-tabs-content class="pa-2" :id="'health'">
+							<div class="tab-container">
+								<Health :dump="dump" />
+							</div>
+						</v-tabs-content>
+						<v-tabs-content class="pa-2" :id="'filesystem'">
+							<div class="tab-container">
+								<Filesystem :dump="dump" />
+							</div>
+						</v-tabs-content>
+						<v-tabs-content class="pa-2" :id="'subprocesses'">
+							<div class="tab-container">
+								<Subprocesses :dump="dump" />
+							</div>
+						</v-tabs-content>
+						<v-tabs-content class="pa-2" :id="'plugins'">
+							<div class="tab-container">
+								<Plugins :dump="dump" />
+							</div>
+						</v-tabs-content>
+						<v-tabs-content :id="'log'">
+							<div class="tab-container">
+								<Log :dump="dump" />
+							</div>
+						</v-tabs-content>
+					</v-tabs-items>
+				</v-tabs>
+			</v-content>
+			<v-container id="dropzone" v-else fluid fill-height>
+				<span v-if="loading">
+					Loading...
+				</span>
+				<span v-else>
+					Please drop your dump file here
+				</span>
+			</v-container>
+		</v-app>
 	</div>
 </template>
 
 <script>
 import Config from './components/Config';
+import Filesystem from './components/Filesystem';
 import Health from './components/Health';
 import Log from './components/Log';
-import Status from './components/Status';
+import Plugins from './components/Plugins';
+import Process from './components/Process';
+import Sidebar from './components/Sidebar';
+import Subprocesses from './components/Subprocesses';
 
 export default {
 	beforeCreate() {
@@ -36,10 +102,10 @@ export default {
 			const dt = evt.dataTransfer;
 
 			if (dt.files && dt.files.length) {
-				this.dumpFile = dt.files[0].name;
+				const { name } = dt.files[0];
 				this.loading = true;
 				const reader = new FileReader();
-				reader.onload = e => this.load(e.target.result);
+				reader.onload = e => this.load(name, e.target.result);
 				reader.readAsText(dt.files[0]);
 			} else {
 				const url = dt.getData("text");
@@ -52,14 +118,11 @@ export default {
 							}
 							throw new Error(`Response not ok (${response.status})`);
 						})
-						.then(text => {
-							this.dumpFile = url;
-							return this.load(text);
-						})
+						.then(text => this.load(url, text))
 						.catch(ex => {
 							this.loading = false;
-							this.dump = null;
-							this.dumpFile = null;
+							// this.dump = null;
+							// this.dumpFile = null;
 							console.error(ex);
 						});
 				}
@@ -68,9 +131,13 @@ export default {
 	},
 	components: {
 		Config,
+		Filesystem,
 		Health,
 		Log,
-		Status
+		Plugins,
+		Process,
+		Sidebar,
+		Subprocesses
 	},
 	created() {
     	const url = new URL(window.location);
@@ -96,9 +163,10 @@ export default {
 		};
 	},
 	methods: {
-		load(str) {
+		load(dumpFile, str) {
 			const p = str.indexOf('{');
 			this.dump = JSON.parse(p === -1 ? str : str.substring(p));
+			this.dumpFile = dumpFile;
 		}
 	}
 };
@@ -106,17 +174,29 @@ export default {
 
 <style>
 #app {
-	height: 100%;
+	display: flex;
+	height: 100vh;
+	width: 100vw;
 }
 
-#app > header {
+.application {
+	flex-grow: 1;
+}
+
+.application-wrap {
+	flex: 0 0 auto;
+}
+
+.tab-container {
+	min-height: 0;
+}
+
+#app header {
 	border-bottom: 1px solid #cbcbcb;
-	box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 	height: 49px;
-	margin-bottom: 20px;
 }
 
-#app > header > h1 {
+#app header > h1 {
 	color: #505c66;
 	font-size: 18px;
 	font-weight: 300;
@@ -131,10 +211,44 @@ export default {
 	padding: 0 25px;
 }
 
-.message {
-	align-items: center;
+#sidebar {
+	background: radial-gradient(farthest-side at 50% 0, rgba(96,96,96,1) 0, rgba(68,68,68,1) 100%);
+	box-shadow: inset 0 8px 24px rgba(0,0,0,0.1);
+	color: #fff;
+	flex-shrink: 0;
+	overflow-y: auto;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+	width: 300px;
+}
+
+#container {
+	flex: 1 1 auto;
+}
+
+#container > .content {
 	display: flex;
-	height: calc(100% - 70px);
+}
+
+#content {
+	background: linear-gradient(90deg, rgba(0,0,0,0.3) 0, rgba(0,0,0,0) 5px) repeat-y;
+}
+
+#dropzone {
+	box-shadow: inset 0 8px 24px rgba(0,0,0,0.1);
 	justify-content: center;
+}
+
+.tabs {
+	display: flex;
+	flex-direction: column;
+}
+
+.tabs__items {
+	display: flex;
+	flex: 1 1 auto;
+}
+
+.tabs__content {
+	overflow: auto !important;
 }
 </style>
