@@ -1,5 +1,5 @@
 <template>
-	<table>
+	<table id="process-info">
 		<tbody>
 			<tr>
 				<th>PID</th>
@@ -58,4 +58,7 @@ export default {
 </script>
 
 <style>
+#process-info th {
+	white-space: nowrap;
+}
 </style>

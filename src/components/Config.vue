@@ -1,5 +1,5 @@
 <template>
-	<table>
+	<table id="config-info">
 		<tbody>
 			<tr v-for="item in conf">
 				<th>{{ item.name }}</th>
@@ -37,3 +37,10 @@ export default {
 	props: [ 'dump' ]
 };
 </script>
+
+<style>
+#config-info th,
+#config-info td {
+	white-space: nowrap;
+}
+</style>

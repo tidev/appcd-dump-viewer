@@ -17,7 +17,7 @@
 			</tbody>
 		</table>
 
-		<table class="tree-grid" v-if="root">
+		<table id="tree-grid" v-if="root">
 			<thead>
 				<tr>
 					<th>Tree</th>
@@ -164,29 +164,32 @@ function parseTree(str) {
 </script>
 
 <style>
-.tree-grid {
-	background: repeating-linear-gradient(
-		0,
-		transparent,
-		transparent 16px,
-		#dee6ea 16px,
-		#dee6ea 32px
-	);
-	background-position-y: 14px;
+#tree-grid {
+	border-collapse: collapse;
 }
 
-.tree-grid th,
-.tree-grid td {
+#tree-grid > tbody > tr {
+	background: repeating-linear-gradient(
+		0,
+		#dee6ea,
+		#dee6ea 16px,
+		transparent 16px,
+		transparent 32px
+	);
+}
+
+#tree-grid th,
+#tree-grid td {
 	padding: 0 10px;
 }
 
-.tree-grid th:first-child,
-.tree-grid td:first-child {
+#tree-grid th:first-child,
+#tree-grid td:first-child {
 	padding-left: 5px;
 }
 
-.tree-grid th:last-child,
-.tree-grid td:last-child {
+#tree-grid th:last-child,
+#tree-grid td:last-child {
 	padding-right: 5px;
 }
 
