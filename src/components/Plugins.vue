@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div id="plugin-info">
 		<table>
 			<tbody>
 				<tr>
@@ -86,6 +86,11 @@ export default {
 </script>
 
 <style>
+#plugin-info th,
+#plugin-info td {
+	white-space: nowrap;
+}
+
 .plugin-unsupported {
 	color: #999;
 }

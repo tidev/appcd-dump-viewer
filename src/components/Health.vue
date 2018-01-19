@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div id="health-info">
 		<table>
 			<tbody>
 				<tr>
@@ -141,6 +141,11 @@ export default {
 </script>
 
 <style>
+#health-info th,
+#health-info td {
+	white-space: nowrap;
+}
+
 .proc-health {
 	margin-top: 10px;
 }
