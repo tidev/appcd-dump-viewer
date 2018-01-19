@@ -1,25 +1,25 @@
 <template>
-	<ul class="tree-node">
-		<li>
-			{{ node.name }}
+	<li>
+		<span><i :class="iconClass"></i> {{ node.name }}</span>
+		<ul v-if="Object.keys(node.children).length">
 			<TreeNode
 				v-for="(child, index) in Object.values(node.children)"
 				:node="child"
 				:key="index"
 				/>
-		</li>
-	</ul>
+		</ul>
+	</li>
 </template>
 
 <script>
 export default {
+	computed: {
+		iconClass() {
+			const { type } = this.node;
+			return `icon-${type === 'd' ? 'directory' : type === 'f' ? 'file' : 'unknown'}`;
+		}
+	},
 	name: 'TreeNode',
 	props: [ 'node' ]
 };
 </script>
-
-<style>
-.tree-node {
-	margin-left: 18px;
-}
-</style>
