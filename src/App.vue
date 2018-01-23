@@ -223,6 +223,7 @@ export default {
 
 #container {
 	flex: 1 1 auto;
+	min-height: 0;
 }
 
 #container > .content {
