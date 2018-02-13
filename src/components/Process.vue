@@ -3,7 +3,7 @@
 		<tbody>
 			<tr>
 				<th>PID</th>
-				<td>{{ dump.status.pid }}</td>
+				<td>{{ dump.status.pid || 'n/a' }}</td>
 			</tr>
 			<tr>
 				<th>Startup Time</th>
@@ -11,23 +11,23 @@
 			</tr>
 			<tr>
 				<th>Uptime</th>
-				<td>{{ dump.status.uptime | prettyTime }}</td>
+				<td>{{ dump.status.uptime || 'n/a' | prettyTime }}</td>
 			</tr>
 			<tr>
 				<th>execPath</th>
-				<td>{{ dump.status.process.execPath }}</td>
+				<td>{{ dump.status.process && dump.status.process.execPath || 'n/a' }}</td>
 			</tr>
 			<tr>
 				<th>execArgv</th>
-				<td>{{ dump.status.process.execArgv }}</td>
+				<td>{{ dump.status.process && dump.status.process.execArgv || 'n/a' }}</td>
 			</tr>
 			<tr>
 				<th>argv</th>
-				<td>{{ dump.status.process.argv }}</td>
+				<td>{{ dump.status.process && dump.status.process.argv || 'n/a' }}</td>
 			</tr>
 			<tr>
 				<th>env</th>
-				<td>
+				<td v-if="dump.status.process">
 					<table>
 						<tbody>
 							<tr v-for="(value, name) in dump.status.process.env">
@@ -37,6 +37,7 @@
 						</tbody>
 					</table>
 				</td>
+				<td v-else>n/a</td>
 			</tr>
 		</tbody>
 	</table>

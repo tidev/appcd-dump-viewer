@@ -1,86 +1,87 @@
 <template>
-	<div id="app">
-		<v-app>
-			<header>
-				<span id="dump-file" v-if="dumpFile">{{ dumpFile }}</span>
-				<h1>Appc Daemon Dump Viewer</h1>
-			</header>
-			<v-content id="container" v-if="dump">
-				<Sidebar id="sidebar" :dump="dump" />
-				<v-tabs id="content">
-					<v-tabs-bar class="grey darken-4" dark>
-						<v-tabs-item :href="'#process'" ripple>
-							Process
-						</v-tabs-item>
-						<v-tabs-item :href="'#config'" ripple>
-							Config
-						</v-tabs-item>
-						<v-tabs-item :href="'#health'" ripple>
-							Health
-						</v-tabs-item>
-						<v-tabs-item :href="'#filesystem'" ripple>
-							Filesystem
-						</v-tabs-item>
-						<v-tabs-item :href="'#subprocesses'" ripple>
-							Subprocesses
-						</v-tabs-item>
-						<v-tabs-item :href="'#plugins'" ripple>
-							Plugins
-						</v-tabs-item>
-						<v-tabs-item :href="'#log'" ripple>
-							Log
-						</v-tabs-item>
-						<v-tabs-slider color="blue darken-1"></v-tabs-slider>
-					</v-tabs-bar>
-					<v-tabs-items>
-						<v-tabs-content class="pa-2" :id="'process'">
-							<div class="tab-container">
-								<Process :dump="dump" />
-							</div>
-						</v-tabs-content>
-						<v-tabs-content class="pa-2" :id="'config'">
-							<div class="tab-container">
-								<Config :dump="dump" />
-							</div>
-						</v-tabs-content>
-						<v-tabs-content class="pa-2" :id="'health'">
-							<div class="tab-container">
-								<Health :dump="dump" />
-							</div>
-						</v-tabs-content>
-						<v-tabs-content class="pa-2" :id="'filesystem'">
-							<div class="tab-container">
-								<Filesystem :dump="dump" />
-							</div>
-						</v-tabs-content>
-						<v-tabs-content class="pa-2" :id="'subprocesses'">
-							<div class="tab-container">
-								<Subprocesses :dump="dump" />
-							</div>
-						</v-tabs-content>
-						<v-tabs-content class="pa-2" :id="'plugins'">
-							<div class="tab-container">
-								<Plugins :dump="dump" />
-							</div>
-						</v-tabs-content>
-						<v-tabs-content :id="'log'">
-							<div class="tab-container">
-								<Log :dump="dump" />
-							</div>
-						</v-tabs-content>
-					</v-tabs-items>
-				</v-tabs>
-			</v-content>
-			<v-container id="dropzone" v-else fluid fill-height>
-				<span v-if="loading">
-					Loading...
-				</span>
-				<span v-else>
-					Please drop your dump file here
-				</span>
-			</v-container>
-		</v-app>
-	</div>
+	<v-app>
+		<header>
+			<span id="dump-file" v-if="dumpFile">{{ dumpFile }}</span>
+			<h1>Appc Daemon Dump Viewer</h1>
+		</header>
+		<v-content id="container" v-if="dump">
+			<Sidebar id="sidebar" :dump="dump" />
+			<v-tabs id="tab-container" v-model="active" dark>
+				<v-tab :href="'#process'" ripple>
+					Process
+				</v-tab>
+				<v-tab :href="'#config'" ripple>
+					Config
+				</v-tab>
+				<v-tab :href="'#health'" ripple>
+					Health
+				</v-tab>
+				<v-tab :href="'#filesystem'" ripple>
+					Filesystem
+				</v-tab>
+				<v-tab :href="'#subprocesses'" ripple>
+					Subprocesses
+				</v-tab>
+				<v-tab :href="'#plugins'" ripple>
+					Plugins
+				</v-tab>
+				<v-tab :href="'#log'" ripple>
+					Log
+				</v-tab>
+				<v-tab :href="'#raw'" ripple>
+					Raw
+				</v-tab>
+				<v-tab-item class="pa-2" :id="'process'">
+					<div class="tab-item-container">
+						<Process :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item class="pa-2" :id="'config'">
+					<div class="tab-item-container">
+						<Config :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item class="pa-2" :id="'health'">
+					<div class="tab-item-container">
+						<Health :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item class="pa-2" :id="'filesystem'">
+					<div class="tab-item-container">
+						<Filesystem :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item class="pa-2" :id="'subprocesses'">
+					<div class="tab-item-container">
+						<Subprocesses :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item class="pa-2" :id="'plugins'">
+					<div class="tab-item-container">
+						<Plugins :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item :id="'log'">
+					<div class="tab-item-container">
+						<Log :dump="dump" />
+					</div>
+				</v-tab-item>
+				<v-tab-item :id="'raw'">
+					<div class="tab-item-container">
+						<Raw :dump="dump" />
+					</div>
+				</v-tab-item>
+			</v-tabs>
+		</v-content>
+		<v-container id="dropzone" v-else fluid fill-height>
+			<span v-if="loading">
+				Loading...
+			</span>
+			<span v-else>
+				Please drop your dump file here
+			</span>
+		</v-container>
+	</v-app>
 </template>
 
 <script>
@@ -90,6 +91,7 @@ import Health from './components/Health';
 import Log from './components/Log';
 import Plugins from './components/Plugins';
 import Process from './components/Process';
+import Raw from './components/Raw';
 import Sidebar from './components/Sidebar';
 import Subprocesses from './components/Subprocesses';
 
@@ -136,12 +138,13 @@ export default {
 		Log,
 		Plugins,
 		Process,
+		Raw,
 		Sidebar,
 		Subprocesses
 	},
 	created() {
     	const url = new URL(window.location);
-		if (url.protocol === 'file:') {
+		if (url.protocol === 'file:' || url.hostname === 'localhost') {
 			window.loadDump = (dumpFile, dump) => {
 				this.dumpFile = dumpFile;
 				this.dump = dump;
@@ -157,9 +160,10 @@ export default {
 	},
 	data() {
 		return {
-			dump: null,
+			active:   'process',
+			dump:     null,
 			dumpFile: null,
-			loading: !!this.dumpFile
+			loading:  !!this.dumpFile
 		};
 	},
 	methods: {
@@ -185,10 +189,6 @@ export default {
 
 .application-wrap {
 	flex: 0 0 auto;
-}
-
-.tab-container {
-	min-height: 0;
 }
 
 #app header {
@@ -223,24 +223,28 @@ export default {
 
 #container {
 	flex: 1 1 auto;
+	min-height: 0;
 }
 
-#container > .content {
+#container > .content--wrap {
 	display: flex;
 }
 
-#content {
+#tab-container {
 	background: linear-gradient(90deg, rgba(0,0,0,0.3) 0, rgba(0,0,0,0) 5px) repeat-y;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.tab-item-container {
+	display: flex;
+	min-height: 100%;
 }
 
 #dropzone {
 	box-shadow: inset 0 8px 24px rgba(0,0,0,0.1);
 	justify-content: center;
-}
-
-.tabs {
-	display: flex;
-	flex-direction: column;
 }
 
 .tabs__items {

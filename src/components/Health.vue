@@ -4,7 +4,7 @@
 			<tbody>
 				<tr>
 					<th>Load Avg</th>
-					<td>
+					<td v-if="dump.status.system">
 						<table>
 							<tbody>
 								<tr>
@@ -22,26 +22,27 @@
 							</tbody>
 						</table>
 					</td>
+					<td v-else>n/a</td>
 				</tr>
 				<tr>
 					<th>Memory Total</th>
-					<td>{{ dump.status.system.memory.total | filesize }}</td>
+					<td>{{ dump.status.system && dump.status.system.memory.total | filesize }}</td>
 				</tr>
 				<tr>
 					<th>Memory Free</th>
-					<td>{{ dump.status.system.memory.free | filesize }}</td>
+					<td>{{ dump.status.system && dump.status.system.memory.free | filesize }}</td>
 				</tr>
 				<tr>
 					<th>RSS</th>
-					<td>{{ dump.status.memory.rss | filesize }}</td>
+					<td>{{ dump.status.memory && dump.status.memory.rss | filesize }}</td>
 				</tr>
 				<tr>
 					<th>Heap Total</th>
-					<td>{{ dump.status.memory.heapTotal | filesize }}</td>
+					<td>{{ dump.status.memory && dump.status.memory.heapTotal | filesize }}</td>
 				</tr>
 				<tr>
 					<th>Used Total</th>
-					<td>{{ dump.status.memory.heapUsed | filesize }}</td>
+					<td>{{ dump.status.memory && dump.status.memory.heapUsed | filesize }}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -60,72 +61,84 @@
 import filesize from 'filesize';
 
 export default {
-	created() {
-		const { status } = this.dump;
+	computed: {
+		procData() {
+			const { health, status } = this.dump;
 
-		const lookup = {};
-		for (const proc of this.dump.health) {
-			lookup[proc.pid] = proc;
-		}
-
-		const sections = {
-			cpu:       'CPU',
-			freemem:   'Free Mem',
-			rss:       'RSS',
-			heapTotal: 'Heap Total',
-			heapUsed:  'Heap Used'
-		};
-
-		const metrics = {
-			min: 'Min',
-			avg: 'Avg',
-			max: 'Max'
-		};
-
-		this.procData = [];
-
-		const add = (name, pid) => {
-			const proc = [];
-			this.procData.push(proc);
-
-			let row = [ name, '' ];
-			for (const name of Object.values(sections)) {
-				row.push(name);
-			}
-			proc.push(row);
-			let first = true;
-
-			for (const [ metric, label ] of Object.entries(metrics)) {
-				row = [];
-				if (first) {
-					row.push(`pid: ${pid}`);
-					first = false;
-				} else {
-					row.push('');
+			const lookup = {};
+			if (health) {
+				for (const proc of health) {
+					lookup[proc.pid] = proc;
 				}
-				row.push(metric);
-				for (const type of Object.keys(sections)) {
-					if (lookup[pid][type]) {
-						const value = lookup[pid][type][metric].toFixed(1);
-						row.push(type === 'cpu' ? `${value}%` : filesize(value));
-					} else {
-						row.push('n/a');
-					}
+			}
+
+			const sections = {
+				cpu:       'CPU',
+				freemem:   'Free Mem',
+				rss:       'RSS',
+				heapTotal: 'Heap Total',
+				heapUsed:  'Heap Used'
+			};
+
+			const metrics = {
+				min: 'Min',
+				avg: 'Avg',
+				max: 'Max'
+			};
+
+			const results = [];
+
+			const add = (name, pid) => {
+				const proc = [];
+				results.push(proc);
+
+				let row = [ name, '' ];
+				for (const name of Object.values(sections)) {
+					row.push(name);
 				}
 				proc.push(row);
-			}
-		};
+				let first = true;
 
-		add(`Daemon Core`, status.pid);
+				for (const [ metric, label ] of Object.entries(metrics)) {
+					row = [];
+					if (first) {
+						row.push(`pid: ${pid}`);
+						first = false;
+					} else {
+						row.push('');
+					}
+					row.push(metric);
+					for (const type of Object.keys(sections)) {
+						if (lookup[pid] && lookup[pid][type]) {
+							const value = lookup[pid][type][metric].toFixed(1);
+							row.push(type === 'cpu' ? `${value}%` : filesize(value));
+						} else {
+							row.push('n/a');
+						}
+					}
+					proc.push(row);
+				}
+			};
 
-		for (const plugin of status.plugins.registered) {
-			if (plugin.pid) {
-				add(`${plugin.name}@${plugin.version}`, plugin.pid);
+			if (status.pid) {
+				add(`Daemon Core`, status.pid);
 			}
+
+			if (status.plugins) {
+				for (const plugin of status.plugins.registered) {
+					if (plugin.pid) {
+						add(`${plugin.name}@${plugin.version}`, plugin.pid);
+					}
+				}
+			}
+
+			return results;
 		}
 	},
 	filters: {
-		filesize
+		filesize(s) {
+			return s ? filesize(s) : 'n/a';
+		}
 	},
 	methods: {
 		getMetric(proc, type, metric) {

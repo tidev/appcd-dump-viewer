@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<table v-if="dump.status.subprocesses.length">
+		<table v-if="dump.status.subprocesses && dump.status.subprocesses.length">
 			<thead>
 				<tr>
 					<th>PID</th>

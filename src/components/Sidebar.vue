@@ -4,27 +4,27 @@
 			<tbody>
 				<tr>
 					<th>Appc Daemon</th>
-					<td>{{ dump.status.version }}</td>
+					<td>{{ dump.status.version || 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>Platform</th>
-					<td>{{ dump.status.system.platform }}</td>
+					<td>{{ dump.status.system ? dump.status.system.platform : 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>Architecture</th>
-					<td>{{ dump.status.system.arch }}</td>
+					<td>{{ dump.status.system ? dump.status.system.arch : 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>CPUs</th>
-					<td>{{ dump.status.system.cpus }}</td>
+					<td>{{ dump.status.system ? dump.status.system.cpus : 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>Node.js</th>
-					<td>{{ dump.status.node.version }}</td>
+					<td>{{ dump.status.node ? dump.status.node.version : 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>Versions</th>
-					<td>
+					<td v-if="dump.status.node">
 						<table class="versions">
 							<tbody>
 								<tr v-for="(ver, type) in dump.status.node.versions">
@@ -34,6 +34,7 @@
 							</tbody>
 						</table>
 					</td>
+					<td v-else>n/a</td>
 				</tr>
 			</tbody>
 		</table>
@@ -42,8 +43,6 @@
 
 <script>
 export default {
-	created() {
-	},
 	props: [ 'dump' ]
 };
 </script>

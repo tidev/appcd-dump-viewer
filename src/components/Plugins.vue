@@ -13,7 +13,7 @@
 			</tbody>
 		</table>
 
-		<table v-if="dump.status.plugins.registered.length">
+		<table v-if="dump.status.plugins && dump.status.plugins.registered.length">
 			<thead>
 				<tr>
 					<th>Plugin</th>
@@ -53,7 +53,10 @@ import prettyMs from 'pretty-ms';
 export default {
 	computed: {
 		pluginPaths() {
-			return this.dump.status.plugins.paths.sort();
+			if (this.dump.status.plugins) {
+				return this.dump.status.plugins.paths.sort();
+			}
+			return [];
 		}
 	},
 	filters: {

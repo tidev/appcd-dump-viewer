@@ -1,5 +1,5 @@
 <template>
-	<div id="output" v-html="output"></div>
+	<div class="terminal" v-html="output"></div>
 </template>
 
 <script>
@@ -7,44 +7,30 @@ import AnsiUp from 'ansi_up';
 import sprintf from 'sprintf';
 
 export default {
-	created() {
-		const ansiup = new AnsiUp();
-		const output = [];
+	computed: {
+		output() {
+			const ansiup = new AnsiUp();
+			const output = [];
 
-		for (const msg of this.dump.log) {
-			let { args, message } = msg;
+			for (const msg of this.dump.log) {
+				let { args, message } = msg;
+				let ts;
 
-			if (Array.isArray(args)) {
-				args = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, '    ') : arg);
-				message = args.length > 1 ? sprintf.apply(null, args) : args[0];
+				if (Array.isArray(args)) {
+					// this is the old appc daemon v1.0.x format
+					args = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, '    ') : arg);
+					ts = msg.ts && `<span style="color:#bb00bb">${new Date(msg.ts).toISOString()}</span> `;
+					message = args.length > 1 ? sprintf.apply(null, args) : args[0];
+				}
+
+				for (const line of message.trim().split(/\r?\n/)) {
+					output.push((ts || '') + ansiup.ansi_to_html(line));
+				}
 			}
 
-			for (const line of message.trim().split(/\r?\n/)) {
-				output.push(ansiup.ansi_to_html(line));
-			}
+			return output.length ? output.join('<br>') : 'No log output'
 		}
-
-		this.output = output.length ? output.join('<br>') : 'No log output';
-	},
-	data() {
-		return {
-			output: ''
-		};
 	},
 	props: [ 'dump' ]
 };
 </script>
-
-<style>
-#output {
-	background-color: #000;
-	color: #fff;
-	font-family: 'Source Code Pro', monospace;
-	font-size: 11px;
-	font-weight: bold;
-	line-height: 14px;
-	margin: 0;
-	padding: 10px;
-	white-space: pre-wrap
-}
-</style>
