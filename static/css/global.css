@@ -95,3 +95,17 @@ tbody > tr > th {
 .icon-unknown:before { content: '\e800'; }
 .icon-directory:before { content: '\e801'; }
 .icon-file:before { content: '\f15c'; }
+
+.terminal {
+	background-color: #000;
+	color: #fff;
+	font-family: 'Source Code Pro', monospace;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 14px;
+	margin: 0;
+	min-height: 100%;
+	padding: 10px;
+	white-space: pre-wrap;
+	width: 100%;
+}

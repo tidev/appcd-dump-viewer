@@ -4,20 +4,20 @@
 			<tbody>
 				<tr>
 					<th>Nodes</th>
-					<td>{{ dump.status.fs.nodes }}</td>
+					<td>{{ dump.status.fs ? dump.status.fs.nodes : 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>FS Watchers</th>
-					<td>{{ dump.status.fs.fswatchers }}</td>
+					<td>{{ dump.status.fs ? dump.status.fs.fswatchers : 'n/a' }}</td>
 				</tr>
 				<tr>
 					<th>Watchers</th>
-					<td>{{ dump.status.fs.watchers }}</td>
+					<td>{{ dump.status.fs ? dump.status.fs.watchers : 'n/a' }}</td>
 				</tr>
 			</tbody>
 		</table>
 
-		<table id="tree-grid" v-if="root">
+		<table id="tree-grid" v-if="stats">
 			<thead>
 				<tr>
 					<th>Tree</th>
@@ -31,20 +31,20 @@
 				<tr>
 					<td>
 						<ul class="tree">
-							<TreeNode :node="root" />
+							<TreeNode :node="stats.root" />
 						</ul>
 					</td>
 					<td class="totals">
-						<div v-for="n in totals.files">{{ n === null ? '-' : n }}</div>
+						<div v-for="n in stats.totals.files">{{ n === null ? '-' : n }}</div>
 					</td>
 					<td class="totals">
-						<div v-for="n in totals.watchers">{{ n === null ? '-' : n  }}</div>
+						<div v-for="n in stats.totals.watchers">{{ n === null ? '-' : n  }}</div>
 					</td>
 					<td class="totals">
-						<div v-for="n in totals.links">{{ n === null ? '-' : n  }}</div>
+						<div v-for="n in stats.totals.links">{{ n === null ? '-' : n  }}</div>
 					</td>
 					<td class="totals">
-						<div v-for="n in totals.recursion">{{ n === null ? '-' : n  }}</div>
+						<div v-for="n in stats.totals.recursion">{{ n === null ? '-' : n  }}</div>
 					</td>
 				</tr>
 			</tbody>
@@ -65,8 +65,11 @@ export default {
 	components: {
 		TreeNode
 	},
-	created() {
-		Object.assign(this, parseTree(this.dump.status.fs.tree));
+	computed: {
+		stats() {
+			const { fs } = this.dump.status;
+			return fs ? parseTree(fs.tree) : null;
+		}
 	},
 	props: [ 'dump' ]
 };
